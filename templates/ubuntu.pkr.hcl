@@ -11,8 +11,8 @@ build {
   provisioner "shell" {
     inline = [
         "apt update -y",
-        "DEBIAN_FRONTEND='noninteractive' apt install puppet -y curl",
-        "DEBIAN_FRONTEND='noninteractive' curl -L https://omnitruck.chef.io/install.sh | bash -s -- -P inspec"
+        "DEBIAN_FRONTEND='noninteractive' apt install puppet -y",
+        "puppet module install hardening-os_hardening",
     ]
   }
 
@@ -23,9 +23,28 @@ build {
       ignore_exit_codes = true
   }
 
+    provisioner "puppet-masterless" {
+      manifest_file     = "config/hardening.pp"
+      prevent_sudo      = true
+      guest_os_type     = "unix"
+      ignore_exit_codes = true
+  }
+
   provisioner "inspec" {
     inspec_env_vars = ["CHEF_LICENSE=accept"]
-    profile         = "https://github.com/dev-sec/cis-dil-benchmark/blob/master/inspec.yml"
+    profile         = "https://github.com/dev-sec/cis-dil-benchmark/"
+  }
+  
+  provisioner "shell" {
+    inline = [
+        "apt remove puppet -y",
+        "apt autoremove -y",
+    ]
+  }
+
+  provisioner "inspec" {
+    inspec_env_vars = ["CHEF_LIENCSE=accept"]
+    profile         = "tests/"
   }
 
   post-processor "docker-tag" {

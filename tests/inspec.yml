@@ -1,0 +1,9 @@
+---
+name: packer-puppet-inspec-profile
+maintainer: Ray Gervais
+license: MIT
+summary: An InSpec Compliance profile for the requirements of this example
+version: 1.0
+
+supports:
+    - platform-family: linux
